@@ -99,6 +99,51 @@
 
 // Browser Wrappers
 (function( Browser, undefined ){
+    // define a single Cookie
+    Browser.Cookie = function( name, value, settings ){
+        this.defaults = {
+            expire:     0,      // defaults to session
+            path:       "/",    // defaults to the root of the web server
+            domain:     null,   // no default domain
+            secure:     false   // defaults to not secure
+        };
+
+        if( settings === undefined || !( settings instanceof Object ) ){
+            settings = {};
+        }
+
+        this.settings = Utils.merge( this.defaults, settings );
+
+        this.name = name;
+        this.value = value;
+
+        this.toString = function(){
+            var selfString = this.name + "=" + escape( this.value );
+
+            // set the expiration
+            if( this.settings.expire != 0 && this.settings.expire instanceof Date ){
+                selfString += "; expires=" + this.settings.expire.toUTCString();
+            }
+
+            // set the path
+            if( this.settings.path != null && this.settings.path != "" ){
+                selfString += "; path=" + escape( this.settings.path );
+            }
+
+            // set the domain
+            if( this.settings.domain != null && this.settings.domain != "" ){
+                selfString += "; domain=" + escape( this.settings.domain );
+            }
+
+            // set whether secure or not
+            if( this.settings.secure ){
+                selfString += "; secure";
+            }
+
+            return selfString;
+        };
+    };
+
 	// set up the Cookie jar
 	(function( Cookies, undefined ){
 		Cookies.cookies = document.cookie;
@@ -109,72 +154,56 @@
 				Cookies.remove( cookie.name );
 			}
 
-			document.cookie = cookie.toString();
-		};
+            document.cookie = cookie.toString();
+        };
 
-		Cookies.get = function( name ){
-			var results = Cookies.cookies.match( "(^|;) ?" + name + "=([^;]*)(;|$)" );
+        Cookies.get = function( name ){
+            var results = Cookies.cookies.match( "(^|;) ?" + name + "=([^;]*)(;|$)" );
 
-			if( results ){
-				return unescape( results[2] );
-			}
-			else{
-				return null;
-			}
-		};
+            if( results ){
+                return unescape( results[2] );
+            }
+            else{
+                return null;
+            }
+        };
 
-		Cookies.remove = function( name ){
-			var past = new Date();
-			past.setTime( past.getTime() - 10101010 );
+        Cookies.remove = function( name ){
+            var past = new Date();
+            past.setTime( past.getTime() - 10101010 );
 
-			document.cookie = name += "=; expires=" + past.toUTCString();
-		};
-	}( Browser.Cookies = Browser.Cookies || {} ));
+            document.cookie = name += "=; expires=" + past.toUTCString();
+        };
+    }( Browser.Cookies = Browser.Cookies || {} ));
 
-	// define a single Cookie
-	Browser.Cookie = function( name, value, settings ){
-		this.defaults = {
-			expire:		0,		// defaults to session
-			path:		"/",	// defaults to the root of the web server
-			domain:		null,	// no default domain
-			secure:		false	// defaults to not secure
-		};
+    (function( Storage, undefined ){
+        Storage.init = function(){
+            if( typeof Storage.__datastore != 'object' ){
+                Storage.__datastore = {};
+            }
+        }
 
-		if( settings === undefined || !( settings instanceof Object ) ){
-			settings = {};
-		}
+        Storage.store = function( key, value ){
+            Storage.init();
+            var data = Storage.retrieve();
+            if( typeof data == 'undefined' ){
+                data = {};
+            }
 
-		this.settings = Utils.merge( this.defaults, settings );
+            data[key] = value;
+            Storage.__datastore = data;
+        }
 
-		this.name = name;
-		this.value = value;
-
-		this.toString = function(){
-			var selfString = this.name + "=" + escape( this.value );
-
-			// set the expiration
-			if( this.settings.expire != 0 && this.settings.expire instanceof Date ){
-				selfString += "; expires=" + this.settings.expire.toUTCString();
-			}
-
-			// set the path
-			if( this.settings.path != null && this.settings.path != "" ){
-				selfString += "; path=" + escape( this.settings.path );
-			}
-
-			// set the domain
-			if( this.settings.domain != null && this.settings.domain != "" ){
-				selfString += "; domain=" + escape( this.settings.domain );
-			}
-
-			// set whether secure or not
-			if( this.settings.secure ){
-				selfString += "; secure";
-			}
-
-			return selfString;
-		};
-	};
+        Storage.retrieve = function( key ){
+            Storage.init();
+            if( typeof key == "undefined" ){
+                return Storage.__datastore;
+            }
+            else{
+                return Storage.__datastore[ key ];
+            }
+        }
+    }( Browser.Storage = Browser.Storage || {} ))
 
     // Navigation helper
     Browser.go = function(loc){
