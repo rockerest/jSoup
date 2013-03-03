@@ -60,31 +60,31 @@
         return bool;
     };
 
-	Utils.recursiveObjectMerge = function( primary, overwrite ){
+    Utils.recursiveObjectMerge = function( primary, overwrite ){
         var p;
-		for( p in overwrite ){
-			try{
-				//try an update
+        for( p in overwrite ){
+            try{
+                //try an update
                 if( overwrite[p].constructor == Object ){
                     if (typeof primary[p] == "undefined" || primary[p] === null) {
                         primary[p] = {};
                     }
                     primary[p] = Utils.recursiveObjectMerge( primary[p], overwrite[p] );
                 }
-				else{
-					primary[p] = overwrite[p];
-				}
-			}
-			catch( e ){
-				// destination doesn't have that property, create and set it
-				primary[p] = overwrite[p];
-			}
-		}
+                else{
+                    primary[p] = overwrite[p];
+                }
+            }
+            catch( e ){
+                // destination doesn't have that property, create and set it
+                primary[p] = overwrite[p];
+            }
+        }
 
-		// primary is modified (it's a reference), but pass it back
-		// to keep up the idea that this function returns a result
-		return primary;
-	};
+        // primary is modified (it's a reference), but pass it back
+        // to keep up the idea that this function returns a result
+        return primary;
+    };
 
     Utils.merge = function( one, two ){
         return Utils.recursiveObjectMerge( Utils.recursiveObjectMerge( {}, one ), two );
@@ -147,15 +147,15 @@
         };
     };
 
-	// set up the Cookie jar
-	(function( Cookies, undefined ){
-		Cookies.cookies = document.cookie;
+    // set up the Cookie jar
+    (function( Cookies, undefined ){
+        Cookies.cookies = document.cookie;
 
-		Cookies.add = function( cookie ){
-			// takes a Cookie object and adds it to the list
-			if( Cookies.get( cookie.name ) ){
-				Cookies.remove( cookie.name );
-			}
+        Cookies.add = function( cookie ){
+            // takes a Cookie object and adds it to the list
+            if( Cookies.get( cookie.name ) ){
+                Cookies.remove( cookie.name );
+            }
 
             document.cookie = cookie.toString();
         };
