@@ -65,9 +65,12 @@
 		for( p in overwrite ){
 			try{
 				//try an update
-				if( overwrite[p].constructor == Object ){
-					primary[p] = Utils.recursiveObjectMerge( primary[p], overwrite[p] );
-				}
+                if( overwrite[p].constructor == Object ){
+                    if (typeof primary[p] == "undefined" || primary[p] === null) {
+                        primary[p] = {};
+                    }
+                    primary[p] = Utils.recursiveObjectMerge( primary[p], overwrite[p] );
+                }
 				else{
 					primary[p] = overwrite[p];
 				}
