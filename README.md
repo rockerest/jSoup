@@ -1,3 +1,7 @@
+jSoup is deprecated.
+--------------------
+The same / similar functionality is available in the nox repository.
+
 jSoup
 =====
 
